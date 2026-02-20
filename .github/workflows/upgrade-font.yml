@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
   push:
     paths:
-      - "fonts/*.ttf"
+      - "*.ttf"
       - ".github/workflows/upgrade-font.yml"
 
 jobs:
@@ -28,7 +28,7 @@ jobs:
       - name: Build variable font from TTFs
         run: |
           mkdir -p build/variable
-          cp fonts/*.ttf build/variable/
+          cp *.ttf build/variable/
 
           python - <<'EOF'
           from fontTools import varLib
