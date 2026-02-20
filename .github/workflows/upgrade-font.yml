@@ -27,23 +27,21 @@ jobs:
 
       - name: Debug font files
         run: |
-          echo "Listing fonts in repo:"
-          ls -lh fonts
+          echo "Listing TTFs in repo root:"
+          ls -lh *.ttf || echo "No TTFs found in root"
 
       - name: Build variable font from TTFs
         run: |
           mkdir -p build/variable
-          cp fonts/*.ttf build/variable/
+          cp *.ttf build/variable/
 
           python - <<'EOF'
           from fontTools import varLib
           import os
 
-          # Detect all TTFs in build/variable
           files = sorted([f for f in os.listdir("build/variable") if f.endswith(".ttf")])
           print("Detected TTF files:", files)
 
-          # Map weights dynamically based on filename keywords
           weight_map = {
               "Thin": 100,
               "ExtraLight": 200,
