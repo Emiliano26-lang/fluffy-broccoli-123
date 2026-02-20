@@ -37,12 +37,14 @@ jobs:
 
           python - <<'EOF'
           from fontTools import varLib
-          import os
+          import os, sys
 
           files = sorted([f for f in os.listdir("build/variable") if f.endswith(".ttf")])
           print("Detected TTF files:", files)
 
-          # Map weights based on filename keywords
+          if len(files) < 7:
+              sys.exit("ERROR: Expected 7 masters, found %d" % len(files))
+
           weight_map = {
               "Thin": 100,
               "ExtraLight": 200,
@@ -62,9 +64,14 @@ jobs:
               f.write('  </axes>\n')
               f.write('  <sources>\n')
               for fname in files:
+                  matched = False
                   for key, wght in weight_map.items():
                       if key in fname:
+                          print(f"Mapping {fname} -> wght={wght}")
                           f.write(f'    <source filename="{fname}" location="wght={wght}"/>\n')
+                          matched = True
+                  if not matched:
+                      print(f"WARNING: {fname} did not match any weight keyword")
               f.write('  </sources>\n')
               f.write('</designspace>\n')
 
