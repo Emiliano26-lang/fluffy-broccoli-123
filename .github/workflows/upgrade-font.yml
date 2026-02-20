@@ -42,10 +42,7 @@ jobs:
           files = sorted([f for f in os.listdir("build/variable") if f.endswith(".ttf")])
           print("Detected TTF files:", files)
 
-          if len(files) < 7:
-              sys.exit("ERROR: Expected 7 masters, found %d" % len(files))
-
-          weight_map = {
+          expected = {
               "Thin": 100,
               "ExtraLight": 200,
               "Light": 300,
@@ -54,6 +51,14 @@ jobs:
               "SemiBold": 600,
               "Bold": 700,
           }
+
+          # Verify all expected weights are present
+          missing = []
+          for key in expected.keys():
+              if not any(key in f for f in files):
+                  missing.append(key)
+          if missing:
+              sys.exit(f"ERROR: Missing masters for weights: {', '.join(missing)}")
 
           ds_path = "build/variable/temp.designspace"
           with open(ds_path, "w") as f:
@@ -64,14 +69,10 @@ jobs:
               f.write('  </axes>\n')
               f.write('  <sources>\n')
               for fname in files:
-                  matched = False
-                  for key, wght in weight_map.items():
+                  for key, wght in expected.items():
                       if key in fname:
                           print(f"Mapping {fname} -> wght={wght}")
                           f.write(f'    <source filename="{fname}" location="wght={wght}"/>\n')
-                          matched = True
-                  if not matched:
-                      sys.exit(f"ERROR: {fname} did not match any weight keyword")
               f.write('  </sources>\n')
               f.write('</designspace>\n')
 
