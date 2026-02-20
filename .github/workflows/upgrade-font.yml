@@ -71,7 +71,7 @@ jobs:
                           f.write(f'    <source filename="{fname}" location="wght={wght}"/>\n')
                           matched = True
                   if not matched:
-                      print(f"WARNING: {fname} did not match any weight keyword")
+                      sys.exit(f"ERROR: {fname} did not match any weight keyword")
               f.write('  </sources>\n')
               f.write('</designspace>\n')
 
