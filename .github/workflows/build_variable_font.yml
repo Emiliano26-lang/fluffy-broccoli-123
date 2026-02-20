@@ -27,10 +27,10 @@ jobs:
       - name: Build variable font
         run: |
           mkdir -p build/fonts
-          fontmake -g sources/IBMPlexSansArabic-VF.glyphs -o variable --output-dir build/fonts
+          fontmake -g sources/IBMPlexSansArabic-VF.ttf -o variable --output-dir build/fonts
 
       - name: Upload font artifacts
         uses: actions/upload-artifact@v4
         with:
           name: variable-fonts
-          path: build/fonts/*.ttf
+          path: build/fonts/*.woff2
