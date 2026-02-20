@@ -42,6 +42,7 @@ jobs:
           files = sorted([f for f in os.listdir("build/variable") if f.endswith(".ttf")])
           print("Detected TTF files:", files)
 
+          # Map weights based on filename keywords
           weight_map = {
               "Thin": 100,
               "ExtraLight": 200,
