@@ -28,24 +28,24 @@ jobs:
       - name: Build variable font from TTFs
         run: |
           mkdir -p build/variable
-          cp *.ttf build/variable/
+          cp fonts/*.ttf build/variable/
 
           python - <<'EOF'
           from fontTools import varLib
           import os
 
-          # Collect all TTFs in build/variable
+          # Detect all TTFs in build/variable
           files = sorted([f for f in os.listdir("build/variable") if f.endswith(".ttf")])
 
-          # Map weights to filenames explicitly
+          # Map weights dynamically based on filename keywords
           weight_map = {
-              "IBMPlexSansArabic-Thin.ttf": 100,
-              "IBMPlexSansArabic-ExtraLight.ttf": 200,
-              "IBMPlexSansArabic-Light.ttf": 300,
-              "IBMPlexSansArabic-Regular.ttf": 400,
-              "IBMPlexSansArabic-Medium.ttf": 500,
-              "IBMPlexSansArabic-SemiBold.ttf": 600,
-              "IBMPlexSansArabic-Bold.ttf": 700,
+              "Thin": 100,
+              "ExtraLight": 200,
+              "Light": 300,
+              "Regular": 400,
+              "Medium": 500,
+              "SemiBold": 600,
+              "Bold": 700,
           }
 
           ds_path = "build/variable/temp.designspace"
@@ -56,8 +56,10 @@ jobs:
               f.write('    <axis tag="wght" name="Weight" minimum="100" maximum="700" default="400"/>\n')
               f.write('  </axes>\n')
               f.write('  <sources>\n')
-              for fname, wght in weight_map.items():
-                  f.write(f'    <source filename="{fname}" location="wght={wght}"/>\n')
+              for fname in files:
+                  for key, wght in weight_map.items():
+                      if key in fname:
+                          f.write(f'    <source filename="{fname}" location="wght={wght}"/>\n')
               f.write('  </sources>\n')
               f.write('</designspace>\n')
 
@@ -70,3 +72,4 @@ jobs:
         with:
           name: variable-font
           path: build/variable/IBMPlexSansArabic-VF.ttf
+          
