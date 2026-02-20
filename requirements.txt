@@ -1,0 +1,5 @@
+fontmake>=3.6.0
+glyphsLib>=6.4.0
+ufo2ft>=2.33.0
+fonttools>=4.55.0
+cu2qu>=1.6.7
