@@ -1,10 +1,10 @@
-name: Upgrade Variable Font
+name: Upgrade Variable Font from TTFs
 
 on:
-  workflow_dispatch:   # manual trigger
+  workflow_dispatch:
   push:
     paths:
-      - "sources/**"   # run when font sources change
+      - "fonts/*.ttf"
       - ".github/workflows/upgrade-font.yml"
 
 jobs:
@@ -24,17 +24,60 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
-          pip install fontmake
+          pip install fonttools
+
+      - name: Prepare variable font sources
+        run: |
+          mkdir -p build/variable
+          # Copy your 7 TTFs into a working dir
+          cp fonts/*.ttf build/variable/
 
       - name: Build variable font
         run: |
-          mkdir -p build/variable
-          fontmake -m sources/IBMPlexSansArabic.designspace \
-                   -o variable \
-                   --output-path build/variable/IBMPlexSansArabic-VF.ttf
+          # Generate a designspace dynamically from the 7 TTFs
+          # Example: weight axis from Thin to Bold
+          python - <<'EOF'
+          from fontTools import varLib
+          import os
+
+          # List your masters explicitly
+          masters = [
+              "build/variable/IBMPlexSansArabic-Thin.ttf",
+              "build/variable/IBMPlexSansArabic-ExtraLight.ttf",
+              "build/variable/IBMPlexSansArabic-Light.ttf",
+              "build/variable/IBMPlexSansArabic-Regular.ttf",
+              "build/variable/IBMPlexSansArabic-Medium.ttf",
+              "build/variable/IBMPlexSansArabic-SemiBold.ttf",
+              "build/variable/IBMPlexSansArabic-Bold.ttf",
+          ]
+
+          # Build a temporary designspace
+          ds_path = "build/variable/temp.designspace"
+          with open(ds_path, "w") as f:
+              f.write("""<?xml version="1.0" encoding="UTF-8"?>
+              <designspace format="4.0">
+                <axes>
+                  <axis tag="wght" name="Weight" minimum="100" maximum="700" default="400"/>
+                </axes>
+                <sources>
+                  <source filename="IBMPlexSansArabic-Thin.ttf" location="wght=100"/>
+                  <source filename="IBMPlexSansArabic-ExtraLight.ttf" location="wght=200"/>
+                  <source filename="IBMPlexSansArabic-Light.ttf" location="wght=300"/>
+                  <source filename="IBMPlexSansArabic-Regular.ttf" location="wght=400"/>
+                  <source filename="IBMPlexSansArabic-Medium.ttf" location="wght=500"/>
+                  <source filename="IBMPlexSansArabic-SemiBold.ttf" location="wght=600"/>
+                  <source filename="IBMPlexSansArabic-Bold.ttf" location="wght=700"/>
+                </sources>
+              </designspace>
+              """)
+
+          # Build variable font
+          vf, _, _ = varLib.build(ds_path)
+          vf.save("build/variable/IBMPlexSansArabic-VF.ttf")
+          EOF
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
           name: variable-font
-          path: build/variable/*.ttf
+          path: build/variable/IBMPlexSansArabic-VF.ttf
