@@ -17,4 +17,4 @@ jobs:
         run: mkdir -p build/fonts
 
       - name: Copy variable font
-        run: cp fonts/IBMPlexSansArabic-VF.ttf build/fonts/
+        run: cp fonts/IBMPlexSansArabic-Thin.ttf build/fonts/
