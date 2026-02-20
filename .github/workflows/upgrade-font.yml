@@ -25,6 +25,11 @@ jobs:
           python -m pip install --upgrade pip
           pip install fonttools
 
+      - name: Debug font files
+        run: |
+          echo "Listing fonts in repo:"
+          ls -lh fonts
+
       - name: Build variable font from TTFs
         run: |
           mkdir -p build/variable
@@ -36,6 +41,7 @@ jobs:
 
           # Detect all TTFs in build/variable
           files = sorted([f for f in os.listdir("build/variable") if f.endswith(".ttf")])
+          print("Detected TTF files:", files)
 
           # Map weights dynamically based on filename keywords
           weight_map = {
@@ -72,4 +78,3 @@ jobs:
         with:
           name: variable-font
           path: build/variable/IBMPlexSansArabic-VF.ttf
-          
