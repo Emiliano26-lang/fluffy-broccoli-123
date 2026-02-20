@@ -32,25 +32,34 @@ jobs:
 
           python - <<'EOF'
           from fontTools import varLib
+          import os
+
+          # Collect all TTFs in build/variable
+          files = sorted([f for f in os.listdir("build/variable") if f.endswith(".ttf")])
+
+          # Map weights to filenames explicitly
+          weight_map = {
+              "IBMPlexSansArabic-Thin.ttf": 100,
+              "IBMPlexSansArabic-ExtraLight.ttf": 200,
+              "IBMPlexSansArabic-Light.ttf": 300,
+              "IBMPlexSansArabic-Regular.ttf": 400,
+              "IBMPlexSansArabic-Medium.ttf": 500,
+              "IBMPlexSansArabic-SemiBold.ttf": 600,
+              "IBMPlexSansArabic-Bold.ttf": 700,
+          }
 
           ds_path = "build/variable/temp.designspace"
           with open(ds_path, "w") as f:
-              f.write("""<?xml version="1.0" encoding="UTF-8"?>
-              <designspace format="4.0">
-                <axes>
-                  <axis tag="wght" name="Weight" minimum="100" maximum="700" default="400"/>
-                </axes>
-                <sources>
-                  <source filename="IBMPlexSansArabic-Thin.ttf" location="wght=100"/>
-                  <source filename="IBMPlexSansArabic-ExtraLight.ttf" location="wght=200"/>
-                  <source filename="IBMPlexSansArabic-Light.ttf" location="wght=300"/>
-                  <source filename="IBMPlexSansArabic-Regular.ttf" location="wght=400"/>
-                  <source filename="IBMPlexSansArabic-Medium.ttf" location="wght=500"/>
-                  <source filename="IBMPlexSansArabic-SemiBold.ttf" location="wght=600"/>
-                  <source filename="IBMPlexSansArabic-Bold.ttf" location="wght=700"/>
-                </sources>
-              </designspace>
-              """)
+              f.write('<?xml version="1.0" encoding="UTF-8"?>\n')
+              f.write('<designspace format="4.0">\n')
+              f.write('  <axes>\n')
+              f.write('    <axis tag="wght" name="Weight" minimum="100" maximum="700" default="400"/>\n')
+              f.write('  </axes>\n')
+              f.write('  <sources>\n')
+              for fname, wght in weight_map.items():
+                  f.write(f'    <source filename="{fname}" location="wght={wght}"/>\n')
+              f.write('  </sources>\n')
+              f.write('</designspace>\n')
 
           vf, _, _ = varLib.build(ds_path)
           vf.save("build/variable/IBMPlexSansArabic-VF.ttf")
