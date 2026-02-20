@@ -23,35 +23,16 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install -r requirements.txt
           pip install fonttools
 
-      - name: Prepare variable font sources
+      - name: Build variable font from TTFs
         run: |
           mkdir -p build/variable
-          # Copy your 7 TTFs into a working dir
           cp fonts/*.ttf build/variable/
 
-      - name: Build variable font
-        run: |
-          # Generate a designspace dynamically from the 7 TTFs
-          # Example: weight axis from Thin to Bold
           python - <<'EOF'
           from fontTools import varLib
-          import os
 
-          # List your masters explicitly
-          masters = [
-              "build/variable/IBMPlexSansArabic-Thin.ttf",
-              "build/variable/IBMPlexSansArabic-ExtraLight.ttf",
-              "build/variable/IBMPlexSansArabic-Light.ttf",
-              "build/variable/IBMPlexSansArabic-Regular.ttf",
-              "build/variable/IBMPlexSansArabic-Medium.ttf",
-              "build/variable/IBMPlexSansArabic-SemiBold.ttf",
-              "build/variable/IBMPlexSansArabic-Bold.ttf",
-          ]
-
-          # Build a temporary designspace
           ds_path = "build/variable/temp.designspace"
           with open(ds_path, "w") as f:
               f.write("""<?xml version="1.0" encoding="UTF-8"?>
@@ -71,7 +52,6 @@ jobs:
               </designspace>
               """)
 
-          # Build variable font
           vf, _, _ = varLib.build(ds_path)
           vf.save("build/variable/IBMPlexSansArabic-VF.ttf")
           EOF
